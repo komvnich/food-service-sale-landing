@@ -1,0 +1,166 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Privilege {
+  starter
+  advanced
+  business
+  pro
+}
+
+enum TypeOrder {
+  tables
+  clients
+  all
+}
+
+enum StatusVerified {
+  pending
+  success
+  ejected
+}
+
+enum TypeUsePromocide {
+  time
+  used
+}
+
+model User{
+  id                    String                  @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt             DateTime                @default(now()) @map("created_at")
+  updatedAt             DateTime                @default(now()) @updatedAt @map("updated_at")
+
+  email                 String                  @unique @map("_email")
+  password              String                  @map("_password")
+  phone                 String                  @map("_phone")
+  agency                String                  @map("_agency")
+
+  longitude             Float                   @map("_longitude")
+  latitude              Float                   @map("_latitude")
+  placement             String                  @map("_placement")
+
+  privilege             Privilege?              @default(starter)
+  rates                 Rate[]
+  verifieds             Verified[]
+  workers               Worker[]
+
+  banned                Boolean?                @default(false)
+  verified              Boolean?                @default(false)
+
+  settingTypeOrder      TypeOrder?              @default(clients) @map("setting_type_order")
+
+  executor              String?                  @default("")
+  iban                  String?                  @default("")
+}
+
+model Verified{
+    id                    String                  @id @default(auto()) @map("_id") @db.ObjectId
+    createdAt             DateTime                @default(now()) @map("created_at")
+
+    fullNameDirector      String                  @map("full_name_director")
+    numberPhoneDirector   String                  @map("number_phone_director")
+    typeOrganization      String                  @map("type_organization")
+
+    code                  String                  
+
+    user                  User?                   @relation(fields: [id], references: [id])
+
+    status                StatusVerified?         @default(pending)
+
+    agency                String
+    email                 String
+    address               String
+    executor              String
+}
+
+model Rank{
+    id                    String                  @id @default(auto()) @map("_id") @db.ObjectId
+    createdAt             DateTime                @default(now()) @map("created_at")
+
+    name                  String
+    agency                String
+}
+
+model Worker{
+  id                    String                  @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt             DateTime                @default(now()) @map("created_at")
+  updatedAt             DateTime                @updatedAt @map("update_at")
+  user                  User?                   @relation(fields: [id], references: [id])
+  username              String
+  agency                String
+  rank                  String[]
+  countSales            Int?                    @default(0) @map("count_sales")
+  sumSales              Int?                    @default(0) @map("sum_sales")
+  pincode               Int                     @default(0000)
+}
+
+model WorkerProductSales{
+  id                    String                  @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt             DateTime                @default(now()) @map("created_at")
+  username              String
+  agency                String
+  productName           String                  @map("product_name")
+  productPrice          Int                     @map("product_price")
+  productCount          Int                     @map("product_count")
+  dateSale              Int                     @map("date_sale")
+}
+
+model Rate {
+  id                    String                  @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt             DateTime                @default(now()) @map("created_at")
+  owner                 String
+  user                  User?                   @relation(fields: [id], references: [id])
+  rate                  Int
+  description           String?
+}
+
+model Product {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  price       Int
+  discount    Int?
+  slug        String    @unique
+  images      String[]  @default([])
+  agency      String
+  warehouse   Json?
+  category    Json?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at")
+}
+
+model Category {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  key         String
+  title       String
+  children    Json?
+  agency      String
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+}
+
+
+model Promocode {
+  id                    String                 @id @default(auto()) @map("_id") @db.ObjectId
+  name                  String
+  typeUsed              String                 @default("used") @map("type_used")
+  dataUsed              String                 @default("0")    @map("data_used")
+  countDataUsed         String?                @default("0")    @map("count_data_used")
+  deactivated           Boolean                @default(false)
+  percent               Int                    @default(0)
+  agency                String
+  createdAt             DateTime               @default(now()) @map("created_at")
+  updatedAt             DateTime               @default(now()) @updatedAt @map("updated_at")
+}
