@@ -31,9 +31,9 @@ const nextConfig = {
 
         const corsHeaders = [
             { key: "Access-Control-Allow-Credentials", value: "true" },
-            { key: "Access-Control-Allow-Origin", value: "*" },  // Замість "*" вказуйте довірені домени
-            { key: "Access-Control-Allow-Methods", value: "POST" },
-            { key: "Access-Control-Allow-Headers", value: "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version" },
+            { key: "Access-Control-Allow-Origin", value: "*" },  // Замените "*" на доверенный домен, если требуется
+            { key: "Access-Control-Allow-Methods", value: "GET, POST, PUT, DELETE, OPTIONS" },  // Разрешите все нужные методы
+            { key: "Access-Control-Allow-Headers", value: "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization" },  // Добавьте Authorization
         ];
 
         return routes.map(route => ({
